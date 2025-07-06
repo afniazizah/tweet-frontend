@@ -65,7 +65,7 @@ function AuthTokenTutorial() {
       color: "bg-blue-100 border-blue-200",
       textColor: "text-blue-500",
       title: "Langkah 1:",
-      content: "Login ke akun Twitter kamu melalui browser (https://twitter.com/)."
+      content: "Login ke akun Twitter kamu melalui browser <a className='text-blue-500 hover:underline' href='https://twitter.com/' target='_blank' rel='noopener noreferrer'>https://twitter.com/</a>."
     },
     {
       number: 2,
@@ -107,7 +107,7 @@ function AuthTokenTutorial() {
         </h1>
       </div>
 
-      {/* Steps */}
+     { /* Steps */}
       <div className="space-y-4">
         {steps.map((step) => (
           <div
@@ -117,8 +117,7 @@ function AuthTokenTutorial() {
             <h3 className={`font-semibold mb-2 ${step.textColor}`}>
               {step.title}
             </h3>
-            <p className="text-gray-700 leading-relaxed">
-              {step.content}
+              <p className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: step.content }}>
             </p>
           </div>
         ))}

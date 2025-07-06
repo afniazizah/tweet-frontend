@@ -9,10 +9,11 @@ import {
 import { FaGear } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import FileUpload from "../components/crawling/FileUpload";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addAdditionalData, startProcess } from "../features/analisisSlice";
 
 const Crawling = ({ socket }) => {
+  const analisisData = useSelector((state) => state.analisis);
   const [inputMethod, setInputMethod] = useState("manual");
   const [keyword, setKeyword] = useState("");
   const [dataCount, setDataCount] = useState("");
@@ -30,6 +31,12 @@ const Crawling = ({ socket }) => {
   const [tableName, setTableName] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [errorForm, setErrorForm] = useState({
+    dataCount: "",
+    authToken: "",
+    startDate: "",
+    endDate: "",
+  });
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -67,7 +74,44 @@ const Crawling = ({ socket }) => {
       socket.off("error crawl");
     };
   }, [socket]);
+  const validateDate = (date, fieldName) => {
+    if (!date) return "";
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate > today) {
+      return "Tanggal tidak boleh lebih dari hari ini";
+    }
+
+    if (fieldName === "startDate") {
+      if (endDate && date > endDate) {
+        return "Tanggal Mulai tidak boleh lebih dari Tanggal Selesai";
+      }
+      if (endDate && date < endDate) {
+        setErrorForm((prev) => ({
+          ...prev,
+          endDate: "",
+        }));
+      }
+    }
+
+    if (fieldName === "endDate") {
+      if (startDate && date < startDate) {
+        return "Tanggal Selesai tidak boleh sebelum Tanggal Mulai";
+      }
+      if (startDate && date > startDate) {
+        setErrorForm((prev) => ({
+          ...prev,
+          startDate: "",
+        }));
+      }
+    }
+
+    return "";
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     // check if socket is connected
@@ -76,17 +120,23 @@ const Crawling = ({ socket }) => {
       return;
     }
     if (inputMethod == "manual") {
-      socket.emit("crawl", {
-        auth_token: authToken,
-        keyword: keyword,
-        limit: parseInt(dataCount),
-        since_date: startDate || null,
-        until_date: endDate || null,
-      });
-      setProcessCrawling({
-        status: true,
-        percent: 0,
-      });
+      if (
+        errorForm.dataCount == "" &&
+        errorForm.startDate == "" &&
+        errorForm.endDate == ""
+      ) {
+        socket.emit("crawl", {
+          auth_token: authToken,
+          keyword: keyword,
+          limit: parseInt(dataCount),
+          since_date: startDate || null,
+          until_date: endDate || null,
+        });
+        setProcessCrawling({
+          status: true,
+          percent: 0,
+        });
+      }
     } else {
       const formData = new FormData();
       formData.append("file", fileUpload);
@@ -206,12 +256,32 @@ const Crawling = ({ socket }) => {
                   type="number"
                   id="dataCount"
                   value={dataCount}
-                  onChange={(e) => setDataCount(e.target.value)}
-                  placeholder="Masukan Jumlah Data Disini"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) => {
+                    // Validate input for data count
+                    if (e.target.value < 100 || e.target.value > 1000) {
+                      setErrorForm((prev) => ({
+                        ...prev,
+                        dataCount: "Minimal 100, Maksimal 1000",
+                      }));
+                    } else {
+                      setErrorForm((prev) => ({
+                        ...prev,
+                        dataCount: "",
+                      }));
+                    }
+                    setDataCount(e.target.value);
+                  }}
+                  placeholder="Minimal 100, Maksimal 1000"
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errorForm.dataCount
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-blue-500"
+                  }`}
                   required
                 />
-                <p className="text-xs mt-1">Minimum 100, maksimum 1000 tweet</p>
+                <p className="text-sm text-red-600 mt-2">
+                  {errorForm.dataCount}
+                </p>
               </div>
 
               {/* Date Range */}
@@ -227,9 +297,22 @@ const Crawling = ({ socket }) => {
                     type="date"
                     id="startDate"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      setErrorForm((prev) => ({
+                        ...prev,
+                        startDate: validateDate(e.target.value, "startDate"),
+                      }));
+                    }}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errorForm.startDate
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-blue-500"
+                    }`}
                   />
+                  <p className="text-sm text-red-600 mt-2">
+                    {errorForm.startDate}
+                  </p>
                 </div>
                 <div>
                   <label
@@ -242,9 +325,22 @@ const Crawling = ({ socket }) => {
                     type="date"
                     id="endDate"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      setErrorForm((prev) => ({
+                        ...prev,
+                        endDate: validateDate(e.target.value, "endDate"),
+                      }));
+                    }}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errorForm.endDate
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 focus:ring-blue-500"
+                    }`}
                   />
+                  <p className="text-sm text-red-600 mt-2">
+                    {errorForm.endDate}
+                  </p>
                 </div>
               </div>
 
@@ -285,15 +381,19 @@ const Crawling = ({ socket }) => {
             />
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-[background-image] duration-200 font-medium text-lg flex items-center justify-center space-x-2 cursor-pointer"
+            disabled={analisisData.process}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-[background-image] duration-200 font-medium text-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>
               <FaPlay />
             </span>
-            <span>Mulai Analisis</span>
+            <span>
+              {analisisData.process
+                ? "Proses Sedang Berjalan..."
+                : "Mulai Analisis"}
+            </span>
           </button>
         </form>
         {/* Progress Bar */}
@@ -364,10 +464,16 @@ const Crawling = ({ socket }) => {
               <button
                 onClick={() => {
                   dispatch(startProcess(fileResult));
-                  dispatch(addAdditionalData({
-                    keyword: keyword,
-                    date: startDate ? startDate.replaceAll('-', '/') + " - " + endDate.replaceAll('-', '/') : null,
-                  }));
+                  dispatch(
+                    addAdditionalData({
+                      keyword: keyword,
+                      date: startDate
+                        ? startDate.replaceAll("-", "/") +
+                          " - " +
+                          endDate.replaceAll("-", "/")
+                        : null,
+                    })
+                  );
                   navigate("hasil-analisis");
                 }}
                 className="flex-1 cursor-pointer bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-center flex items-center justify-center space-x-2"
