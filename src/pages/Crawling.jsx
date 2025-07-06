@@ -55,6 +55,7 @@ const Crawling = ({ socket }) => {
         status: false,
         percent: 0,
       });
+      console.log(file)
       setIsDoneCrawling(true);
       setFileResult(file);
     });
