@@ -24,6 +24,7 @@ const Crawling = ({ socket }) => {
     status: false,
     percent: 0,
   });
+  const [totalTweet, setTotalTweet] = useState(0);
   const [errorCrawling, setErrorCrawling] = useState(null);
   const [isDoneCrawling, setIsDoneCrawling] = useState(false);
   const [fileResult, setFileResult] = useState(null);
@@ -50,14 +51,15 @@ const Crawling = ({ socket }) => {
       }));
     });
 
-    socket.on("complete crawl", (file) => {
+    socket.on("complete crawl", (result) => {
+      const {filename, total_tweet} = result;
       setProcessCrawling({
         status: false,
         percent: 0,
       });
-      console.log(file)
       setIsDoneCrawling(true);
-      setFileResult(file);
+      setFileResult(filename);
+      setTotalTweet(total_tweet);
     });
 
     socket.on("error crawl", (error) => {
@@ -137,6 +139,8 @@ const Crawling = ({ socket }) => {
           status: true,
           percent: 0,
         });
+        setErrorCrawling(null);
+        setIsDoneCrawling(false);
       }
     } else {
       const formData = new FormData();
@@ -203,11 +207,12 @@ const Crawling = ({ socket }) => {
 
               <button
                 type="button"
+                disabled={processCrawling.status}
                 onClick={() => setInputMethod("file")}
                 className={`p-4 border border-[1.5] rounded-lg text-left transition-colors ${
                   inputMethod === "file"
                     ? "border-primary text-primary bg-primary-hover"
-                    : "hover:border-primary hover:text-primary hover:bg-primary-hover border-gray-400"
+                    : "hover:border-primary hover:text-primary hover:bg-primary-hover border-gray-400 disabled:bg-gray-200 disabled:hover:bg-gray-200 disabled:hover:text-black"
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -215,8 +220,8 @@ const Crawling = ({ socket }) => {
                     <FaFileCsv />
                   </span>
                   <div>
-                    <div className="font-medium">Upload File</div>
-                    <div className="text-sm">Upload file scraping</div>
+                    <div className="font-medium">Unggah Berkas</div>
+                    <div className="text-sm">Unggah berkas hasil scraping</div>
                   </div>
                 </div>
               </button>
@@ -311,9 +316,13 @@ const Crawling = ({ socket }) => {
                         : "border-gray-300 focus:ring-blue-500"
                     }`}
                   />
-                  <p className="text-sm text-red-600 mt-2">
-                    {errorForm.startDate}
-                  </p>
+                  {errorForm.startDate ? (
+                    <p className="text-sm text-red-600 mt-2">{errorForm.startDate}</p>
+                  ) : (
+                    <p className="text-xs text-gray-600 mt-2">
+                      Jika tanggal tidak diisi, sistem akan mengambil data terbaru
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -384,8 +393,8 @@ const Crawling = ({ socket }) => {
 
           <button
             type="submit"
-            disabled={analisisData.process}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-[background-image] duration-200 font-medium text-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={analisisData.process || processCrawling.status}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-[background-image] duration-200 font-medium text-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
             <span>
               <FaPlay />
@@ -410,7 +419,7 @@ const Crawling = ({ socket }) => {
               <>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-blue-700">
-                    Proses Crawling...
+                    Proses Scrapping...
                   </span>
                   <span className="text-sm font-medium text-blue-700">
                     {processCrawling.percent}%
@@ -428,20 +437,17 @@ const Crawling = ({ socket }) => {
         )}
 
         {/* Error Message */}
-        {errorCrawling && (
+        {errorCrawling && inputMethod === 'manual' && (
           <div className="mt-6 p-4 bg-red-50 rounded-lg border border-red-200">
             <div className="flex items-center space-x-2">
-              <span className="text-red-600 text-lg">
-                <FaQuestion />
-              </span>
               <span className="text-red-600 font-medium">
-                Terjadi kesalahan: {errorCrawling}
+                {errorCrawling}
               </span>
             </div>
           </div>
         )}
         {/* Result Message */}
-        {isDoneCrawling && (
+        {isDoneCrawling && inputMethod === 'manual' && (
           <>
             <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center space-x-2">
@@ -449,7 +455,7 @@ const Crawling = ({ socket }) => {
                   <FaFileCsv />
                 </span>
                 <span className="text-green-600 font-medium">
-                  Crawling selesai
+                  Scrapping selesai
                 </span>
               </div>
             </div>
@@ -463,6 +469,7 @@ const Crawling = ({ socket }) => {
                 <span>Download File</span>
               </a>
               <button
+                disabled={analisisData.process || totalTweet < 100}
                 onClick={() => {
                   dispatch(startProcess(fileResult));
                   dispatch(
@@ -477,11 +484,16 @@ const Crawling = ({ socket }) => {
                   );
                   navigate("hasil-analisis");
                 }}
-                className="flex-1 cursor-pointer bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-center flex items-center justify-center space-x-2"
+                className="flex-1 cursor-pointer bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-center flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-default"
               >
                 <FaPlay />
                 <span>Lanjut Analisis</span>
               </button>
+            </div>
+            <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <p className="text-sm text-yellow-800">
+                <span className="font-medium">Catatan: </span> Setelah melanjutkan analisis, file tidak dapat diunduh lagi. Pastikan untuk mengunduh file terlebih dahulu jika diperlukan.
+              </p>
             </div>
           </>
         )}
