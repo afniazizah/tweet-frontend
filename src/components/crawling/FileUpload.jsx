@@ -91,8 +91,8 @@ export default function FileUpload ({ tableName, setTableName, uploadedFile, set
             </div>
             <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                    Upload file parameter
-                    <span className="text-red-500">*</span>
+                    Unggah berkas .CSV
+                    <span className="text-red-500"> *</span>
                 </label>
             </div>
 

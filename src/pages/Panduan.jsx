@@ -11,7 +11,7 @@ const Panduan = () => {
                         <FaQuestionCircle />
                     </span>
                     <h2 className="text-xl font-semibold text-gray-800">
-                        Parameter Scraping
+                        Panduan Penggunaan
                     </h2>
                 </div>
                 <ul className="space-y-4">
@@ -65,7 +65,7 @@ function AuthTokenTutorial() {
       color: "bg-blue-100 border-blue-200",
       textColor: "text-blue-500",
       title: "Langkah 1:",
-      content: "Login ke akun Twitter kamu melalui browser <a className='text-blue-500 hover:underline' href='https://twitter.com/' target='_blank' rel='noopener noreferrer'>https://twitter.com/</a>."
+      content: "Login ke akun Twitter kamu melalui browser (<a className='text-blue-500 hover:underline' href='https://twitter.com/' target='_blank' rel='noopener noreferrer'>https://twitter.com/</a>)."
     },
     {
       number: 2,
@@ -124,11 +124,7 @@ function AuthTokenTutorial() {
       </div>
 
       {/* Footer Note */}
-      <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-        <p className="text-sm text-yellow-800">
-          <strong>Catatan:</strong> Auth token adalah informasi sensitif. Jangan bagikan dengan orang lain dan gunakan dengan hati-hati.
-        </p>
-      </div>
+      
     </>
   );
 }
@@ -140,7 +136,8 @@ function TipsBestPractices() {
       color: "text-purple-500",
       items: [
         "Gunakan kata kunci yang spesifik",
-        "Hindari kata yang terlalu umum"
+        "Hindari kata yang terlalu umum",
+        "Gunakan tanggal scraping yang relevan untuk hasil yang lebih baik"
       ]
     },
     {

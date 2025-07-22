@@ -11,6 +11,7 @@ const Header = () => {
     };
 
     return (
+        <>
         <header className="print:hidden">
             <div className="bg-gradient-to-r from-blue-500 to-purple-800 text-white shadow-lg">
                 <div className="container mx-auto px-6 py-6">
@@ -83,6 +84,10 @@ const Header = () => {
                 </div>
             </nav>
         </header>
+        <header className="hidden print:block">
+            <h1 className="text-center font-semibold text-2xl my-1 pt-5">Hasil Analisis Sentimen Platform X</h1>
+        </header>
+        </>
     );
 };
 

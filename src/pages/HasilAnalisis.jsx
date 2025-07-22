@@ -91,7 +91,7 @@ const HasilAnalisis = () => {
             </div>
           </Card>
 
-          <div className="mt-10 print:mt-7 grid grid-cols-2 md:grid-cols-4 gap-x-7 gap-y-5 md:gap-20 print:gap-10">
+          <div className="mt-10 print:mt-7 grid grid-cols-2 md:grid-cols-4 gap-x-7 gap-y-5 md:gap-20 print:grid-cols-4 print:gap-10">
             <CardPercent color="primary" label="Akurasi">
               {analisisData.data.accuracy}%
             </CardPercent>
@@ -106,7 +106,7 @@ const HasilAnalisis = () => {
             </CardPercent>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 mt-10 print:mt-5">
+          <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 mt-10 print:grid-cols-2 print:mt-5">
             <Card>
               <h3 className="text-center font-medium text-xl mb-2">Distribusi Sentimen</h3>
               <img src={import.meta.env.VITE_API_URL + '/images/' + analisisData.data.pie_chart} alt="Pie Chart" />
@@ -144,13 +144,4 @@ const CardPercent = ({ children, label, color }) => {
     </div>
   );
 };
-
-const DocumentAnalisis = () => {
-  <Document>
-    <Page size="A4">
-      <Text>Hasil Analisis</Text>
-    </Page>
-  </Document>
-}
-
 export default HasilAnalisis;
