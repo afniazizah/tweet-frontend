@@ -247,7 +247,7 @@ const Crawling = ({ socket }) => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
-                <p className="text-xs mt-1">Contoh: harga bbm naik</p>
+                <p className="text-xs mt-1">Contoh: TimnasDay</p>
               </div>
 
               {/* Data Count */}
@@ -412,14 +412,14 @@ const Crawling = ({ socket }) => {
             {processCrawling.percent === 0 ? (
               <div className="text-center">
                 <span className="text-sm font-medium text-blue-700">
-                  Memulai crawling...
+                  Memulai scraping...
                 </span>
               </div>
             ) : (
               <>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-blue-700">
-                    Proses Scrapping...
+                    Proses Scraping...
                   </span>
                   <span className="text-sm font-medium text-blue-700">
                     {processCrawling.percent}%
@@ -455,7 +455,7 @@ const Crawling = ({ socket }) => {
                   <FaFileCsv />
                 </span>
                 <span className="text-green-600 font-medium">
-                  Scrapping selesai
+                  Scraping selesai
                 </span>
               </div>
             </div>
