@@ -11,6 +11,7 @@ const socketMiddleware = (store) => {
     //     });
     // });
     socket.on('update analisis', (data) => {
+        console.log("update analisis", data);
         store.dispatch(updateProcess(data));
     })
 
